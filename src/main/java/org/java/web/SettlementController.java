@@ -28,6 +28,7 @@ public class SettlementController {
     @RequestMapping("showData")
     @ResponseBody
     public Map<String,Object> showData(HttpSession session){
+        System.out.println("进入showData");
         Map<String,Object> emp = (Map<String, Object>) session.getAttribute("emp");
         return settlementService.showData(emp.get("emp_username").toString());
     }
