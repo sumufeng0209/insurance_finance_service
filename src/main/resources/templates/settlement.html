@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="js/jquery-1.12.4.js"></script>
+    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <script src="bootstrap/js/bootstrap.min.js"></script>
+    <link href="layui/css/layui.css" rel="stylesheet" type="text/css">
+    <script src="layui/layui.js"></script>
+    <script type="text/html" id="edit1">
+        <a type="button" lay-event="settlementBtn" class="layui-btn layui-btn-primary">结案</a>
+    </script>
+</head>
+<body>
+    <table class="layui-table" id="showData" lay-filter="documentsTable">
+
+    </table>
+</body>
+    <script>
+        var form;
+        var table;
+        layui.use(['form','table'],function(){
+            form = layui.form;
+            form.render();
+            table = layui.table;
+            showData();
+
+        });
+        function showData(){
+            table.render({
+                elem: '#showData'
+                ,url:'showData'
+                ,cols: [
+                    [
+                    {field:'compensate_case_id',title: '赔案编号',align : 'center'}
+                    ,{field:'cust_truename',title: '客户姓名',align : 'center'}
+                    ,{field:'estimate_price',title: '估损金额',align : 'center'}
+                    ,{field:'report_a_case_person_name',title: '报案人姓名',align : 'center'}
+                    ,{field:'adjustment_comment',title: '核赔备注',align : 'center'}
+                    ,{field:'other_fee_sum',title: '费用总合计',align : 'center'}
+                    ,{fixed: 'right', title:'操作',align : 'center', toolbar: '#edit1'}
+                ]
+                ]
+                ,page: true
+            });
+            table.on('tool(showData)', function(obj){
+                var data = obj.data;
+                if (obj.event === "settlementBtn"){
+                    var time = new Date();
+                    var appOrderNO = time.getFullYear() + "" + (time.getMonth() + 1) + "" + time.getDate() + "" + time.getHours() + "" + time.getMinutes() + "" +time.getSeconds() + "" + time.getTime();
+                    $.ajax({
+                        url:"transAccount",
+                        data:{"appOrderNO":appOrderNO,"payee_account":data.cust_bank_card,"amount":other_fee_sum,"remark":"结算转账"},
+                        dataType:"json",
+                        success:function () {
+                            location.href = "settlement?compensate_case_id="+data.compensate_case_id+"&instance_id="+data.instance_id+"&taskId="+data.taskId;
+                            layer.alert("结算成功!");
+                            $.ajax({
+                                url:"http://localhost:9000/gateway/schedule/taskAutoDispatch",
+                                data:{"processId":data.instance_id},
+                                dataType:"json",
+                                success:function (name) {
+                                    layer.alert(name+"已接受任务");
+                                }
+                            })
+                        }
+                    });
+
+                }
+            });
+        }
+        $(function () {
+        })
+    </script>
+</html>

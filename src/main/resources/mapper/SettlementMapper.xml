@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.java.dao.SettlementMapper">
+    <insert parameterType="map" id="add">
+        insert into settlement values(uuid(),#{emp_id},now(),#{compensate_case_id},#{instance_id});
+    </insert>
+    <select id="findAdvanceAdjustmentByInstanceId" resultType="map">
+        SELECT * FROM advance_adjustment_verify aav,advance_adjustment aa,compensate_case cc,report_a_case rac,customer_insurance_policy cip,customer c
+        WHERE aav.adjustment_id = aa.adjustment_id
+        AND aa.compensate_case_id = cc.compensate_case_id
+        AND cc.compensate_case_id = rac.compensate_case_id
+        AND rac.policy_id = cip.policy_id
+        AND cip.insured_id = c.cust_id
+        AND aav.instance_id = #{processInstanceId}
+    </select>
+</mapper>
